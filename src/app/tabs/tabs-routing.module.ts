@@ -8,27 +8,27 @@ const routes: Routes = [
     component: TabsPage,
     children: [
       {
-        path: 'tab1',
-        loadChildren: () => import('../tab1/tab1.module').then((m) => m.Tab1PageModule),
+        path: 'current-weather',
+        loadChildren: () => import('../current-weather/current-weather.module').then((m) => m.CurrentWeatherPageModule),
       },
       {
-        path: 'tab2',
-        loadChildren: () => import('../tab2/tab2.module').then((m) => m.Tab2PageModule),
+        path: 'forecast',
+        loadChildren: () => import('../forecast/forecast.module').then((m) => m.ForecastPageModule),
       },
       {
-        path: 'tab3',
-        loadChildren: () => import('../tab3/tab3.module').then((m) => m.Tab3PageModule),
+        path: 'uv-index',
+        loadChildren: () => import('../tab3/uv-index.module').then((m) => m.UVIndexPageModule),
       },
       {
         path: '',
-        redirectTo: '/tabs/tab1',
+        redirectTo: '/tabs/current-weather',
         pathMatch: 'full',
       },
     ],
   },
   {
     path: '',
-    redirectTo: '/tabs/tab1',
+    redirectTo: '/tabs/current-weather',
     pathMatch: 'full',
   },
 ];
