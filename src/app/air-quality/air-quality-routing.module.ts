@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { UVIndexPage } from './uv-index.page';
+import { AirQualityPage } from './air-quality.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: UVIndexPage,
+    component: AirQualityPage,
   },
 ];
 
@@ -13,4 +13,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class UVIndexPageRoutingModule {}
+export class AirQualityPageRoutingModule {}

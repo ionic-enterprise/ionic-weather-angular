@@ -3,10 +3,10 @@ import { RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UVIndexPage } from './uv-index.page';
+import { AirQualityPage } from './air-quality.page';
 import { ExploreContainerComponentModule } from '../explore-container/explore-container.module';
 
-import { UVIndexPageRoutingModule } from './uv-index-routing.module';
+import { AirQualityPageRoutingModule } from './air-quality-routing.module';
 
 @NgModule({
   imports: [
@@ -14,9 +14,9 @@ import { UVIndexPageRoutingModule } from './uv-index-routing.module';
     CommonModule,
     FormsModule,
     ExploreContainerComponentModule,
-    RouterModule.forChild([{ path: '', component: UVIndexPage }]),
-    UVIndexPageRoutingModule,
+    RouterModule.forChild([{ path: '', component: AirQualityPage }]),
+    AirQualityPageRoutingModule,
   ],
-  declarations: [UVIndexPage],
+  declarations: [AirQualityPage],
 })
-export class UVIndexPageModule {}
+export class AirQualityPageModule {}

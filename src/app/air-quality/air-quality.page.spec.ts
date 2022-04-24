@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { ExploreContainerComponentModule } from '../explore-container/explore-container.module';
-import { UVIndexPage } from './uv-index.page';
+import { AirQualityPage } from './air-quality.page';
 
-describe('UVIndexPage', () => {
-  let component: UVIndexPage;
-  let fixture: ComponentFixture<UVIndexPage>;
+describe('AirQualityPage', () => {
+  let component: AirQualityPage;
+  let fixture: ComponentFixture<AirQualityPage>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [UVIndexPage],
+      declarations: [AirQualityPage],
       imports: [IonicModule.forRoot(), ExploreContainerComponentModule],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(UVIndexPage);
+    fixture = TestBed.createComponent(AirQualityPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
