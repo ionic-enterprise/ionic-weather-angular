@@ -16,8 +16,8 @@ const routes: Routes = [
         loadChildren: () => import('../forecast/forecast.module').then((m) => m.ForecastPageModule),
       },
       {
-        path: 'air-quality',
-        loadChildren: () => import('../air-quality/air-quality.module').then((m) => m.AirQualityPageModule),
+        path: 'uv-index',
+        loadChildren: () => import('../tab3/uv-index.module').then((m) => m.UVIndexPageModule),
       },
       {
         path: '',
