@@ -17,7 +17,7 @@ const routes: Routes = [
       },
       {
         path: 'uv-index',
-        loadChildren: () => import('../tab3/uv-index.module').then((m) => m.UVIndexPageModule),
+        loadChildren: () => import('../uv-index/uv-index.module').then((m) => m.UVIndexPageModule),
       },
       {
         path: '',
