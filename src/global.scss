@@ -51,3 +51,16 @@
 .item {
   --background: transparent;
 }
+
+.primary-value {
+  font-size: 36px;
+}
+
+.secondary-value {
+  font-size: 24px;
+}
+
+ion-item {
+  --inner-padding-top: 12px;
+  --inner-padding-bottom: 12px;
+}

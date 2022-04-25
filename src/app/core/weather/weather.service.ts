@@ -19,7 +19,7 @@ export class WeatherService {
         switchMap(() => this.getData()),
         map((data) => this.convert(data))
       )
-      .subscribe((w) => console.log('I am refreshed', w));
+      .subscribe((w) => this.currentData.next(w));
 
     setInterval(() => {
       this.refresh.next();

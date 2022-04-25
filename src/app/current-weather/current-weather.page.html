@@ -1,15 +1,19 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
     <ion-title> Current Weather</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="main-content">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Current Weather</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <app-explore-container name="Current Weather page"></app-explore-container>
+<ion-content class="ion-padding ion-text-center main-content">
+  <div *ngIf="data$ | async as data">
+    <div class="primary-value">Madison, WI</div>
+    <csdemo-temperature
+      class="primary-value"
+      [scale]="scale"
+      temperature="{{data?.temperature}}"
+      (click)="scale = scale === 'F' ? 'C' : 'F'"
+      style="display: 'block'"
+    ></csdemo-temperature>
+    <csdemo-condition [condition]="data?.condition" [iconPaths]="icons"></csdemo-condition>
+  </div>
 </ion-content>
