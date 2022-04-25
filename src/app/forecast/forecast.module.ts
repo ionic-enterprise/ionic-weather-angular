@@ -6,9 +6,10 @@ import { ForecastPage } from './forecast.page';
 import { ExploreContainerComponentModule } from '../explore-container/explore-container.module';
 
 import { ForecastPageRoutingModule } from './forecast-routing.module';
+import { CsdemoWeatherWidgetsModule } from '@ionic-enterprise/cs-demo-weather-widgets-angular';
 
 @NgModule({
-  imports: [IonicModule, CommonModule, FormsModule, ExploreContainerComponentModule, ForecastPageRoutingModule],
+  imports: [IonicModule, CommonModule, CsdemoWeatherWidgetsModule, FormsModule, ForecastPageRoutingModule],
   declarations: [ForecastPage],
 })
 export class ForecastPageModule {}

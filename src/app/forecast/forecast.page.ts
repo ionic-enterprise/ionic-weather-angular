@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { WeatherService } from '@app/core';
+import { environment } from '@env/environment';
 
 @Component({
   selector: 'app-forecast',
@@ -7,7 +8,9 @@ import { WeatherService } from '@app/core';
   styleUrls: ['forecast.page.scss'],
 })
 export class ForecastPage {
-  constructor(private weather: WeatherService) {
-    this.weather.currentData$.subscribe(console.log);
-  }
+  scale = 'F';
+  data$ = this.weather.currentData$;
+  icons = environment.icons;
+
+  constructor(private weather: WeatherService) {}
 }
