@@ -23,7 +23,7 @@ export class WeatherService {
 
     setInterval(() => {
       this.refresh.next();
-    }, 60 * 60 * 1000);
+    }, 15 * 60 * 1000);
   }
 
   get currentData$() {
@@ -35,6 +35,7 @@ export class WeatherService {
       condition: data.current.weather[0].id,
       temperature: data.current.temp,
       uvIndex: data.current.uvi,
+      uvRiskIndex: this.riskLevel(data.current.uvi),
       forecasts: this.convertForecast(data.daily),
     };
   }
@@ -62,5 +63,21 @@ export class WeatherService {
     return this.http.get<any>(
       `https://api.openweathermap.org/data/2.5/onecall?lat=43.074085&lon=-89.381027&exclude=minutely,hourly&appid=${environment.apiKey}`
     );
+  }
+
+  private riskLevel(value: number): number {
+    if (value < 3) {
+      return 0;
+    }
+    if (value < 6) {
+      return 1;
+    }
+    if (value < 8) {
+      return 2;
+    }
+    if (value < 11) {
+      return 3;
+    }
+    return 4;
   }
 }

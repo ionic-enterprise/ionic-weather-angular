@@ -1,15 +1,12 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
     <ion-title> UV Index </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="main-content">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">UV Index</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <app-explore-container name="UV Index page"></app-explore-container> </ion-content
->Forecast
+<ion-content class="ion-padding ion-text-center main-content">
+  <div *ngIf="data$ | async as data">
+    <csdemo-uv-index class="primary-value" [uvIndex]="data?.uvIndex"></csdemo-uv-index>
+    <div class="description">{{ advice[(data?.uvRiskIndex)] }}</div>
+  </div>
+</ion-content>

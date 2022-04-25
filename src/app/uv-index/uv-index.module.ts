@@ -1,19 +1,18 @@
-import { IonicModule } from '@ionic/angular';
-import { RouterModule } from '@angular/router';
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { UVIndexPage } from './uv-index.page';
-import { ExploreContainerComponentModule } from '../explore-container/explore-container.module';
-
+import { RouterModule } from '@angular/router';
+import { CsdemoWeatherWidgetsModule } from '@ionic-enterprise/cs-demo-weather-widgets-angular';
+import { IonicModule } from '@ionic/angular';
 import { UVIndexPageRoutingModule } from './uv-index-routing.module';
+import { UVIndexPage } from './uv-index.page';
 
 @NgModule({
   imports: [
     IonicModule,
     CommonModule,
+    CsdemoWeatherWidgetsModule,
     FormsModule,
-    ExploreContainerComponentModule,
     RouterModule.forChild([{ path: '', component: UVIndexPage }]),
     UVIndexPageRoutingModule,
   ],
