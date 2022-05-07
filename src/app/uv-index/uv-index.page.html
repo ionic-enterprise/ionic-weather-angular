@@ -7,6 +7,6 @@
 <ion-content class="ion-padding ion-text-center main-content">
   <div *ngIf="data$ | async as data">
     <csdemo-uv-index class="primary-value" [uvIndex]="data?.uvIndex"></csdemo-uv-index>
-    <div class="description">{{ advice[(data?.uvRiskIndex)] }}</div>
+    <div class="description">{{ advice(data?.uvIndex) }}</div>
   </div>
 </ion-content>
