@@ -4,6 +4,30 @@ import { CurrentWeather, Forecast } from '@app/models';
 import { environment } from '@env/environment';
 import { BehaviorSubject, Observable, switchMap, map } from 'rxjs';
 
+interface WeatherCondition {
+  id: number;
+  main: string;
+  description: string;
+  icon: string;
+}
+interface RawForecast {
+  dt: number;
+  weather: [WeatherCondition];
+  temp: {
+    min: number;
+    max: number;
+  };
+}
+interface OneCallResponse {
+  current: {
+    dt: number;
+    temp: number;
+    uvi: number;
+    weather: [WeatherCondition];
+  };
+  daily: [RawForecast];
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -54,7 +78,7 @@ export class WeatherService {
     ][level];
   }
 
-  private convert(data: any): CurrentWeather {
+  private convert(data: OneCallResponse): CurrentWeather {
     return {
       condition: data.current.weather[0].id,
       temperature: data.current.temp,
@@ -63,9 +87,9 @@ export class WeatherService {
     };
   }
 
-  private convertForecast(daily: Array<any>): Array<Array<Forecast>> {
+  private convertForecast(daily: Array<RawForecast>): Array<Array<Forecast>> {
     const result = [];
-    daily.forEach((day: any) => {
+    daily.forEach((day: RawForecast) => {
       result.push([
         {
           date: new Date(day.dt * 1000),
@@ -82,8 +106,8 @@ export class WeatherService {
     return result;
   }
 
-  private getData(): Observable<any> {
-    return this.http.get<any>(
+  private getData(): Observable<OneCallResponse> {
+    return this.http.get<OneCallResponse>(
       `https://api.openweathermap.org/data/2.5/onecall?lat=43.074085&lon=-89.381027&exclude=minutely,hourly&appid=${environment.apiKey}`
     );
   }
