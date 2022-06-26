@@ -87,21 +87,15 @@ export class WeatherService {
     };
   }
 
-  private convertForecast(daily: Array<RawForecast>): Array<Array<Forecast>> {
+  private convertForecast(daily: Array<RawForecast>): Array<Forecast> {
     const result = [];
     daily.forEach((day: RawForecast) => {
-      result.push([
-        {
-          date: new Date(day.dt * 1000),
-          condition: day.weather[0].id,
-          temperature: day.temp.min,
-        },
-        {
-          date: new Date(day.dt * 1000),
-          condition: day.weather[0].id,
-          temperature: day.temp.max,
-        },
-      ]);
+      result.push({
+        date: new Date(day.dt * 1000),
+        condition: day.weather[0].id,
+        low: day.temp.min,
+        high: day.temp.max,
+      });
     });
     return result;
   }

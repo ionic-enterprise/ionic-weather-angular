@@ -14,7 +14,7 @@
   <ion-list *ngIf="data$ | async as data">
     <ion-item *ngFor="let f of data.forecasts" (click)="scale = scale === 'F' ? 'C' : 'F'">
       <ion-label>
-        <csdemo-daily-forecast [scale]="scale" [forecasts]="f"></csdemo-daily-forecast>
+        <csdemo-daily-forecast [scale]="scale" [forecast]="f"></csdemo-daily-forecast>
       </ion-label>
     </ion-item>
   </ion-list>
