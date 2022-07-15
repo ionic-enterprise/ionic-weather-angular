@@ -2,7 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CurrentWeather, Forecast } from '@app/models';
 import { environment } from '@env/environment';
-import { BehaviorSubject, Observable, switchMap, map } from 'rxjs';
+import { BehaviorSubject, Observable, mergeMap, switchMap, map, from } from 'rxjs';
+import { Location } from '@app/models';
+import { LocationService } from '../location/location.service';
 
 interface WeatherCondition {
   id: number;
@@ -19,6 +21,7 @@ interface RawForecast {
   };
 }
 interface OneCallResponse {
+  locationName: string;
   current: {
     dt: number;
     temp: number;
@@ -35,12 +38,20 @@ export class WeatherService {
   private currentData: BehaviorSubject<CurrentWeather>;
   private refresh: BehaviorSubject<void>;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private location: LocationService) {
     this.currentData = new BehaviorSubject(null);
     this.refresh = new BehaviorSubject(null);
+  }
+
+  get currentData$() {
+    return this.currentData.asObservable();
+  }
+
+  initialize() {
     this.refresh
       .pipe(
-        switchMap(() => this.getData()),
+        switchMap(() => from(this.location.getCurrentLocation())),
+        mergeMap((loc: Location) => this.getData(loc)),
         map((data) => this.convert(data))
       )
       .subscribe((w) => this.currentData.next(w));
@@ -48,10 +59,6 @@ export class WeatherService {
     setInterval(() => {
       this.refresh.next();
     }, 15 * 60 * 1000);
-  }
-
-  get currentData$() {
-    return this.currentData.asObservable();
   }
 
   uvAdvice(uvIndex: number): string {
@@ -80,6 +87,7 @@ export class WeatherService {
 
   private convert(data: OneCallResponse): CurrentWeather {
     return {
+      locationName: data.locationName,
       condition: data.current.weather[0].id,
       temperature: data.current.temp,
       uvIndex: data.current.uvi,
@@ -100,10 +108,17 @@ export class WeatherService {
     return result;
   }
 
-  private getData(): Observable<OneCallResponse> {
-    return this.http.get<OneCallResponse>(
-      `https://api.openweathermap.org/data/2.5/onecall?lat=43.074085&lon=-89.381027&exclude=minutely,hourly&appid=${environment.apiKey}`
-    );
+  private getData(location: Location): Observable<OneCallResponse> {
+    return this.http
+      .get<OneCallResponse>(
+        `${environment.baseUrl}/data/2.5/onecall?exclude=minutely,hourly` +
+          `&lat=${location.latitude}&lon=${location.longitude}&appid=${environment.apiKey}`
+      )
+      .pipe(
+        mergeMap((x: any) =>
+          this.location.getLocationName(location).pipe(map((locationName: string) => ({ ...x, locationName })))
+        )
+      );
   }
 
   private riskLevel(value: number): number {

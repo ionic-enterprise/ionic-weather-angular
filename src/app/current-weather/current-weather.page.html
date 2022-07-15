@@ -6,14 +6,14 @@
 
 <ion-content class="ion-padding ion-text-center main-content">
   <div *ngIf="data$ | async as data">
-    <div class="primary-value">Madison, WI</div>
+    <div class="primary-value">{{data.locationName}}</div>
     <csdemo-temperature
       class="primary-value"
       [scale]="scale"
-      temperature="{{data?.temperature}}"
+      temperature="{{data.temperature}}"
       (click)="scale = scale === 'F' ? 'C' : 'F'"
       style="display: 'block'"
     ></csdemo-temperature>
-    <csdemo-condition [condition]="data?.condition"></csdemo-condition>
+    <csdemo-condition [condition]="data.condition"></csdemo-condition>
   </div>
 </ion-content>
