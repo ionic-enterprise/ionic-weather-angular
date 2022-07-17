@@ -37,17 +37,18 @@ interface OneCallResponse {
 export class WeatherService {
   private currentData: BehaviorSubject<CurrentWeather>;
   private refresh: BehaviorSubject<void>;
+  private refreshTimer: any;
 
   constructor(private http: HttpClient, private location: LocationService) {
     this.currentData = new BehaviorSubject(null);
     this.refresh = new BehaviorSubject(null);
   }
 
-  get currentData$() {
+  get currentData$(): Observable<CurrentWeather> {
     return this.currentData.asObservable();
   }
 
-  initialize() {
+  initialize(): void {
     this.refresh
       .pipe(
         switchMap(() => from(this.location.getCurrentLocation())),
@@ -55,10 +56,16 @@ export class WeatherService {
         map((data) => this.convert(data))
       )
       .subscribe((w) => this.currentData.next(w));
+  }
 
-    setInterval(() => {
+  startRefreshTimer(): void {
+    this.refreshTimer = setInterval(() => {
       this.refresh.next();
     }, 15 * 60 * 1000);
+  }
+
+  stopRefreshTimer(): void {
+    clearInterval(this.refreshTimer);
   }
 
   uvAdvice(uvIndex: number): string {
@@ -109,6 +116,7 @@ export class WeatherService {
   }
 
   private getData(location: Location): Observable<OneCallResponse> {
+    console.log('getDAta');
     return this.http
       .get<OneCallResponse>(
         `${environment.baseUrl}/data/2.5/onecall?exclude=minutely,hourly` +

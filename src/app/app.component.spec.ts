@@ -26,4 +26,22 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     expect(weather.initialize).toHaveBeenCalledTimes(1);
   });
+
+  it('starts the refresh timer on the weather service', () => {
+    const weather = TestBed.inject(WeatherService);
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    expect(weather.startRefreshTimer).toHaveBeenCalledTimes(1);
+  });
+
+  describe('on destroy', () => {
+    it('stops the refresh timer on the weather service', () => {
+      const weather = TestBed.inject(WeatherService);
+      const fixture = TestBed.createComponent(AppComponent);
+      fixture.detectChanges();
+      const app = fixture.debugElement.componentInstance;
+      app.ngOnDestroy();
+      expect(weather.stopRefreshTimer).toHaveBeenCalledTimes(1);
+    });
+  });
 });

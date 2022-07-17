@@ -6,6 +6,8 @@ export const createWeatherServiceMock = () =>
     'WeatherService',
     {
       initialize: null,
+      startRefreshTimer: null,
+      stopRefreshTimer: null,
       uvAdvice: '',
     },
     {
