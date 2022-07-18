@@ -116,7 +116,6 @@ export class WeatherService {
   }
 
   private getData(location: Location): Observable<OneCallResponse> {
-    console.log('getDAta');
     return this.http
       .get<OneCallResponse>(
         `${environment.baseUrl}/data/2.5/onecall?exclude=minutely,hourly` +
