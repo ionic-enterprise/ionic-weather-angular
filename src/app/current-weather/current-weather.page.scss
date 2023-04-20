@@ -7,10 +7,12 @@
 }
 
 csdemo-condition {
+  display: block;
   --csdemo-condition-image-height: 212px;
   --csdemo-condition-label-font-size: 24px;
 }
 
 csdemo-temperature {
+  display: block;
   cursor: pointer;
 }
