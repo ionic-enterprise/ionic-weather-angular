@@ -5,7 +5,8 @@
   "author": "Ionic Customer Success Team <support@ionic.io>",
   "homepage": "https://ionicframework.com/",
   "scripts": {
-    "build": "ng build && cap copy",
+    "build": "npm run build:web && cap sync",
+    "build:web": "ng build",
     "e2e": "ng e2e",
     "lint": "ng lint",
     "ng": "ng",

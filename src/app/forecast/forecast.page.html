@@ -5,12 +5,6 @@
 </ion-header>
 
 <ion-content class="main-content">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Forecast</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
   <ion-list *ngIf="data$ | async as data">
     <ion-item *ngFor="let f of data.forecasts" (click)="scale = scale === 'F' ? 'C' : 'F'">
       <ion-label>
