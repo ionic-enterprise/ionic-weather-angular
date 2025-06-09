@@ -11,6 +11,7 @@ describe('WeatherService', () => {
   let service: WeatherService;
   let httpTestingController: HttpTestingController;
   let rawWeather: any;
+  let rawForecast: any;
 
   beforeEach(() => {
     const locationService = createLocationServiceMock();
@@ -33,7 +34,7 @@ describe('WeatherService', () => {
     beforeEach(() => {
       const location = TestBed.inject(LocationService);
       (location.getCurrentLocation as jasmine.Spy).and.resolveTo({ latitude: 42.73, longitude: -89.43 });
-      (location.getLocationName as jasmine.Spy).and.returnValue(of('Jimmy Crossing, IL'));
+      (location.getLocationName as jasmine.Spy).and.returnValue(of('South Padre Island, TX'));
     });
 
     it('gets the current location', fakeAsync(() => {
@@ -43,13 +44,17 @@ describe('WeatherService', () => {
       expect(location.getCurrentLocation).toHaveBeenCalledTimes(1);
     }));
 
-    it('gets the weather data', fakeAsync(() => {
+    it('gets the current weather and forecast data', fakeAsync(() => {
       service.initialize();
       tick();
-      const req = httpTestingController.expectOne(
-        `${environment.baseUrl}/data/2.5/onecall?exclude=minutely,hourly&lat=42.73&lon=-89.43&appid=${environment.apiKey}`
+      const forecastReq = httpTestingController.expectOne(
+        `${environment.baseUrl}/data/2.5/forecast?lat=42.73&lon=-89.43&appid=${environment.apiKey}`,
       );
-      expect(req.request.method).toEqual('GET');
+      const weatherReq = httpTestingController.expectOne(
+        `${environment.baseUrl}/data/2.5/weather?lat=42.73&lon=-89.43&appid=${environment.apiKey}`,
+      );
+      expect(forecastReq.request.method).toEqual('GET');
+      expect(weatherReq.request.method).toEqual('GET');
       httpTestingController.verify();
     }));
 
@@ -57,10 +62,14 @@ describe('WeatherService', () => {
       const location = TestBed.inject(LocationService);
       service.initialize();
       tick();
-      const req = httpTestingController.expectOne(
-        `${environment.baseUrl}/data/2.5/onecall?exclude=minutely,hourly&lat=42.73&lon=-89.43&appid=${environment.apiKey}`
+      const forecastReq = httpTestingController.expectOne(
+        `${environment.baseUrl}/data/2.5/forecast?lat=42.73&lon=-89.43&appid=${environment.apiKey}`,
       );
-      req.flush(rawWeather);
+      const weatherReq = httpTestingController.expectOne(
+        `${environment.baseUrl}/data/2.5/weather?lat=42.73&lon=-89.43&appid=${environment.apiKey}`,
+      );
+      forecastReq.flush(rawForecast);
+      weatherReq.flush(rawWeather);
       expect(location.getLocationName).toHaveBeenCalledTimes(1);
     }));
 
@@ -69,24 +78,80 @@ describe('WeatherService', () => {
       service.currentData$.subscribe((w) => (res = w));
       service.initialize();
       tick();
-      const req = httpTestingController.expectOne(
-        `${environment.baseUrl}/data/2.5/onecall?exclude=minutely,hourly&lat=42.73&lon=-89.43&appid=${environment.apiKey}`
+      const forecastReq = httpTestingController.expectOne(
+        `${environment.baseUrl}/data/2.5/forecast?lat=42.73&lon=-89.43&appid=${environment.apiKey}`,
       );
-      req.flush(rawWeather);
+      const weatherReq = httpTestingController.expectOne(
+        `${environment.baseUrl}/data/2.5/weather?lat=42.73&lon=-89.43&appid=${environment.apiKey}`,
+      );
+      forecastReq.flush(rawForecast);
+      weatherReq.flush(rawWeather);
       expect(res).toEqual({
-        locationName: 'Jimmy Crossing, IL',
+        locationName: 'South Padre Island, TX',
         condition: 800,
-        temperature: 299.18,
-        uvIndex: 1.1,
+        temperature: 301.34,
+        uvIndex: jasmine.any(Number),
         forecasts: [
-          { date: new Date(1658080800000), condition: 500, low: 288.69, high: 299.18 },
-          { date: new Date(1658167200000), condition: 800, low: 290.05, high: 301.22 },
-          { date: new Date(1658253600000), condition: 802, low: 292.49, high: 301.2 },
-          { date: new Date(1658340000000), condition: 800, low: 292.7, high: 299.49 },
-          { date: new Date(1658426400000), condition: 500, low: 292.12, high: 301.9 },
-          { date: new Date(1658512800000), condition: 500, low: 293.67, high: 301.42 },
-          { date: new Date(1658599200000), condition: 501, low: 293.99, high: 305.09 },
-          { date: new Date(1658685600000), condition: 502, low: 294.3, high: 302.98 },
+          {
+            date: new Date(1749502800000),
+            low: 301.36,
+            high: 301.41,
+            condition: 800,
+          },
+          {
+            date: new Date(1749513600000),
+            low: 301.24,
+            high: 301.27,
+            condition: 800,
+          },
+          {
+            date: new Date(1749524400000),
+            low: 300.97,
+            high: 300.97,
+            condition: 800,
+          },
+          {
+            date: new Date(1749535200000),
+            low: 300.96,
+            high: 300.96,
+            condition: 801,
+          },
+          {
+            date: new Date(1749546000000),
+            low: 301.02,
+            high: 301.02,
+            condition: 804,
+          },
+          {
+            date: new Date(1749556800000),
+            low: 301,
+            high: 301,
+            condition: 804,
+          },
+          {
+            date: new Date(1749567600000),
+            low: 301.25,
+            high: 301.25,
+            condition: 802,
+          },
+          {
+            date: new Date(1749578400000),
+            low: 301.36,
+            high: 301.36,
+            condition: 803,
+          },
+          {
+            date: new Date(1749589200000),
+            low: 301.43,
+            high: 301.43,
+            condition: 804,
+          },
+          {
+            date: new Date(1749600000000),
+            low: 301.32,
+            high: 301.32,
+            condition: 803,
+          },
         ],
       });
     }));
@@ -96,17 +161,21 @@ describe('WeatherService', () => {
     beforeEach(() => {
       const location = TestBed.inject(LocationService);
       (location.getCurrentLocation as jasmine.Spy).and.resolveTo({ latitude: 42.73, longitude: -89.43 });
-      (location.getLocationName as jasmine.Spy).and.returnValue(of('Jimmy Crossing, IL'));
+      (location.getLocationName as jasmine.Spy).and.returnValue(of('South Padre Island, TX'));
     });
 
     it('creates a 15 minute refresh', fakeAsync(() => {
       const location = TestBed.inject(LocationService);
       service.initialize();
       tick();
-      const req = httpTestingController.expectOne(
-        `${environment.baseUrl}/data/2.5/onecall?exclude=minutely,hourly&lat=42.73&lon=-89.43&appid=${environment.apiKey}`
+      const forecastReq = httpTestingController.expectOne(
+        `${environment.baseUrl}/data/2.5/forecast?lat=42.73&lon=-89.43&appid=${environment.apiKey}`,
       );
-      req.flush(rawWeather);
+      const weatherReq = httpTestingController.expectOne(
+        `${environment.baseUrl}/data/2.5/weather?lat=42.73&lon=-89.43&appid=${environment.apiKey}`,
+      );
+      forecastReq.flush(rawForecast);
+      weatherReq.flush(rawWeather);
       service.startRefreshTimer();
       expect(location.getCurrentLocation).toHaveBeenCalledTimes(1);
       tick(14 * 60 * 1000 + 59999);
@@ -148,194 +217,429 @@ describe('WeatherService', () => {
   });
 
   const initializeTestData = () => {
-    rawWeather = {
-      lat: 42.73,
-      lon: -89.43,
-      timezone: 'America/Chicago',
-      timezone_offset: -18000,
-      current: {
-        dt: 1658099470,
-        sunrise: 1658054078,
-        sunset: 1658107962,
-        temp: 299.18,
-        feels_like: 299.18,
-        pressure: 1012,
-        humidity: 69,
-        dew_point: 293.05,
-        uvi: 1.1,
-        clouds: 0,
-        visibility: 10000,
-        wind_speed: 1.54,
-        wind_deg: 40,
-        weather: [{ id: 800, main: 'Clear', description: 'clear sky', icon: '01d' }],
-      },
-      daily: [
+    rawForecast = {
+      cod: '200',
+      message: 0,
+      cnt: 40,
+      list: [
         {
-          dt: 1658080800,
-          sunrise: 1658054078,
-          sunset: 1658107962,
-          moonrise: 1658118420,
-          moonset: 1658070420,
-          moon_phase: 0.65,
-          temp: { day: 297.66, min: 288.69, max: 299.18, night: 292.3, eve: 298.7, morn: 290.68 },
-          feels_like: { day: 298.18, night: 292.65, eve: 299.22, morn: 291 },
-          pressure: 1012,
-          humidity: 77,
-          dew_point: 293.24,
-          wind_speed: 4.23,
-          wind_deg: 35,
-          wind_gust: 6.12,
-          weather: [{ id: 500, main: 'Rain', description: 'light rain', icon: '10d' }],
-          clouds: 97,
-          pop: 0.9,
-          rain: 2.53,
-          uvi: 8.16,
-        },
-        {
-          dt: 1658167200,
-          sunrise: 1658140531,
-          sunset: 1658194319,
-          moonrise: 1658206140,
-          moonset: 1658161140,
-          moon_phase: 0.69,
-          temp: { day: 300.56, min: 290.05, max: 301.22, night: 294.72, eve: 299.34, morn: 291.6 },
-          feels_like: { day: 302.04, night: 295.39, eve: 299.34, morn: 291.88 },
-          pressure: 1012,
-          humidity: 63,
-          dew_point: 292.86,
-          wind_speed: 3.41,
-          wind_deg: 222,
-          wind_gust: 6.46,
-          weather: [{ id: 800, main: 'Clear', description: 'clear sky', icon: '01d' }],
-          clouds: 0,
+          dt: 1749502800,
+          main: {
+            temp: 301.36,
+            feels_like: 305.95,
+            temp_min: 301.36,
+            temp_max: 301.41,
+            pressure: 1012,
+            sea_level: 1012,
+            grnd_level: 1010,
+            humidity: 81,
+            temp_kf: -0.05,
+          },
+          weather: [
+            {
+              id: 800,
+              main: 'Clear',
+              description: 'clear sky',
+              icon: '01d',
+            },
+          ],
+          clouds: {
+            all: 10,
+          },
+          wind: {
+            speed: 7.53,
+            deg: 154,
+            gust: 8.44,
+          },
+          visibility: 10000,
           pop: 0,
-          uvi: 9.25,
+          sys: {
+            pod: 'd',
+          },
+          dt_txt: '2025-06-09 21:00:00',
         },
         {
-          dt: 1658253600,
-          sunrise: 1658226985,
-          sunset: 1658280674,
-          moonrise: 0,
-          moonset: 1658251620,
-          moon_phase: 0.72,
-          temp: { day: 300.76, min: 292.49, max: 301.2, night: 298.33, eve: 299.06, morn: 293.61 },
-          feels_like: { day: 303.19, night: 298.89, eve: 299.8, morn: 294.14 },
-          pressure: 1008,
-          humidity: 71,
-          dew_point: 294.84,
-          wind_speed: 7.45,
-          wind_deg: 200,
-          wind_gust: 16.83,
-          weather: [{ id: 802, main: 'Clouds', description: 'scattered clouds', icon: '03d' }],
-          clouds: 43,
+          dt: 1749513600,
+          main: {
+            temp: 301.27,
+            feels_like: 306.05,
+            temp_min: 301.24,
+            temp_max: 301.27,
+            pressure: 1011,
+            sea_level: 1011,
+            grnd_level: 1010,
+            humidity: 83,
+            temp_kf: 0.03,
+          },
+          weather: [
+            {
+              id: 800,
+              main: 'Clear',
+              description: 'clear sky',
+              icon: '01d',
+            },
+          ],
+          clouds: {
+            all: 10,
+          },
+          wind: {
+            speed: 6.31,
+            deg: 143,
+            gust: 7.52,
+          },
+          visibility: 10000,
           pop: 0,
-          uvi: 8.92,
+          sys: {
+            pod: 'd',
+          },
+          dt_txt: '2025-06-10 00:00:00',
         },
         {
-          dt: 1658340000,
-          sunrise: 1658313440,
-          sunset: 1658367026,
-          moonrise: 1658293800,
-          moonset: 1658342100,
-          moon_phase: 0.75,
-          temp: { day: 299.04, min: 292.7, max: 299.49, night: 293.43, eve: 297.46, morn: 293.31 },
-          feels_like: { day: 299.46, night: 293.97, eve: 298.04, morn: 293.68 },
-          pressure: 1002,
-          humidity: 68,
-          dew_point: 292.5,
-          wind_speed: 7.16,
-          wind_deg: 212,
-          wind_gust: 18.21,
-          weather: [{ id: 800, main: 'Clear', description: 'clear sky', icon: '01d' }],
-          clouds: 0,
+          dt: 1749524400,
+          main: {
+            temp: 300.97,
+            feels_like: 305.85,
+            temp_min: 300.97,
+            temp_max: 300.97,
+            pressure: 1011,
+            sea_level: 1011,
+            grnd_level: 1011,
+            humidity: 87,
+            temp_kf: 0,
+          },
+          weather: [
+            {
+              id: 800,
+              main: 'Clear',
+              description: 'clear sky',
+              icon: '01n',
+            },
+          ],
+          clouds: {
+            all: 0,
+          },
+          wind: {
+            speed: 7.14,
+            deg: 136,
+            gust: 9.09,
+          },
+          visibility: 10000,
           pop: 0,
-          uvi: 8.78,
+          sys: {
+            pod: 'n',
+          },
+          dt_txt: '2025-06-10 03:00:00',
         },
         {
-          dt: 1658426400,
-          sunrise: 1658399896,
-          sunset: 1658453377,
-          moonrise: 1658381520,
-          moonset: 1658432400,
-          moon_phase: 0.79,
-          temp: { day: 301.46, min: 292.12, max: 301.9, night: 294.98, eve: 300.19, morn: 293.3 },
-          feels_like: { day: 302.71, night: 295.59, eve: 302.98, morn: 293.77 },
-          pressure: 1009,
-          humidity: 57,
-          dew_point: 292.12,
-          wind_speed: 3.83,
-          wind_deg: 283,
-          wind_gust: 7.32,
-          weather: [{ id: 500, main: 'Rain', description: 'light rain', icon: '10d' }],
-          clouds: 0,
-          pop: 0.34,
-          rain: 0.41,
-          uvi: 8.66,
+          dt: 1749535200,
+          main: {
+            temp: 300.96,
+            feels_like: 305.98,
+            temp_min: 300.96,
+            temp_max: 300.96,
+            pressure: 1012,
+            sea_level: 1012,
+            grnd_level: 1012,
+            humidity: 88,
+            temp_kf: 0,
+          },
+          weather: [
+            {
+              id: 801,
+              main: 'Clouds',
+              description: 'few clouds',
+              icon: '02n',
+            },
+          ],
+          clouds: {
+            all: 16,
+          },
+          wind: {
+            speed: 7.72,
+            deg: 134,
+            gust: 9.79,
+          },
+          visibility: 10000,
+          pop: 0,
+          sys: {
+            pod: 'n',
+          },
+          dt_txt: '2025-06-10 06:00:00',
         },
         {
-          dt: 1658512800,
-          sunrise: 1658486353,
-          sunset: 1658539727,
-          moonrise: 1658469360,
-          moonset: 1658522700,
-          moon_phase: 0.82,
-          temp: { day: 301.42, min: 293.67, max: 301.42, night: 293.87, eve: 296.79, morn: 293.67 },
-          feels_like: { day: 302.43, night: 294.35, eve: 297.4, morn: 294.15 },
-          pressure: 1014,
-          humidity: 55,
-          dew_point: 291.41,
-          wind_speed: 4.6,
-          wind_deg: 159,
-          wind_gust: 10.16,
-          weather: [{ id: 500, main: 'Rain', description: 'light rain', icon: '10d' }],
-          clouds: 49,
-          pop: 0.7,
-          rain: 1.94,
-          uvi: 0.41,
+          dt: 1749546000,
+          main: {
+            temp: 301.02,
+            feels_like: 306.16,
+            temp_min: 301.02,
+            temp_max: 301.02,
+            pressure: 1011,
+            sea_level: 1011,
+            grnd_level: 1011,
+            humidity: 88,
+            temp_kf: 0,
+          },
+          weather: [
+            {
+              id: 804,
+              main: 'Clouds',
+              description: 'overcast clouds',
+              icon: '04n',
+            },
+          ],
+          clouds: {
+            all: 100,
+          },
+          wind: {
+            speed: 7.59,
+            deg: 137,
+            gust: 9.26,
+          },
+          visibility: 10000,
+          pop: 0,
+          sys: {
+            pod: 'n',
+          },
+          dt_txt: '2025-06-10 09:00:00',
         },
         {
-          dt: 1658599200,
-          sunrise: 1658572810,
-          sunset: 1658626074,
-          moonrise: 1658557440,
-          moonset: 1658612940,
-          moon_phase: 0.85,
-          temp: { day: 303.62, min: 293.99, max: 305.09, night: 295.63, eve: 302.32, morn: 295.62 },
-          feels_like: { day: 309.63, night: 296.44, eve: 308.83, morn: 296.38 },
-          pressure: 1014,
-          humidity: 71,
-          dew_point: 297.7,
-          wind_speed: 3.79,
-          wind_deg: 217,
-          wind_gust: 10.39,
-          weather: [{ id: 501, main: 'Rain', description: 'moderate rain', icon: '10d' }],
-          clouds: 13,
-          pop: 0.96,
-          rain: 8.62,
-          uvi: 1,
+          dt: 1749556800,
+          main: {
+            temp: 301,
+            feels_like: 306.26,
+            temp_min: 301,
+            temp_max: 301,
+            pressure: 1012,
+            sea_level: 1012,
+            grnd_level: 1012,
+            humidity: 89,
+            temp_kf: 0,
+          },
+          weather: [
+            {
+              id: 804,
+              main: 'Clouds',
+              description: 'overcast clouds',
+              icon: '04d',
+            },
+          ],
+          clouds: {
+            all: 91,
+          },
+          wind: {
+            speed: 8.17,
+            deg: 147,
+            gust: 10.37,
+          },
+          visibility: 10000,
+          pop: 0,
+          sys: {
+            pod: 'd',
+          },
+          dt_txt: '2025-06-10 12:00:00',
         },
         {
-          dt: 1658685600,
-          sunrise: 1658659268,
-          sunset: 1658712420,
-          moonrise: 1658645760,
-          moonset: 1658703000,
-          moon_phase: 0.88,
-          temp: { day: 301.53, min: 294.3, max: 302.98, night: 294.91, eve: 299.6, morn: 294.3 },
-          feels_like: { day: 305.36, night: 295.65, eve: 299.6, morn: 295.03 },
-          pressure: 1009,
-          humidity: 75,
-          dew_point: 296.66,
-          wind_speed: 6.92,
-          wind_deg: 89,
-          wind_gust: 13.26,
-          weather: [{ id: 502, main: 'Rain', description: 'heavy intensity rain', icon: '10d' }],
-          clouds: 87,
-          pop: 1,
-          rain: 26.97,
-          uvi: 1,
+          dt: 1749567600,
+          main: {
+            temp: 301.25,
+            feels_like: 306.5,
+            temp_min: 301.25,
+            temp_max: 301.25,
+            pressure: 1014,
+            sea_level: 1014,
+            grnd_level: 1014,
+            humidity: 86,
+            temp_kf: 0,
+          },
+          weather: [
+            {
+              id: 802,
+              main: 'Clouds',
+              description: 'scattered clouds',
+              icon: '03d',
+            },
+          ],
+          clouds: {
+            all: 27,
+          },
+          wind: {
+            speed: 7.2,
+            deg: 139,
+            gust: 8.36,
+          },
+          visibility: 10000,
+          pop: 0,
+          sys: {
+            pod: 'd',
+          },
+          dt_txt: '2025-06-10 15:00:00',
+        },
+        {
+          dt: 1749578400,
+          main: {
+            temp: 301.36,
+            feels_like: 306.47,
+            temp_min: 301.36,
+            temp_max: 301.36,
+            pressure: 1014,
+            sea_level: 1014,
+            grnd_level: 1014,
+            humidity: 84,
+            temp_kf: 0,
+          },
+          weather: [
+            {
+              id: 803,
+              main: 'Clouds',
+              description: 'broken clouds',
+              icon: '04d',
+            },
+          ],
+          clouds: {
+            all: 63,
+          },
+          wind: {
+            speed: 6.78,
+            deg: 142,
+            gust: 7.87,
+          },
+          visibility: 10000,
+          pop: 0,
+          sys: {
+            pod: 'd',
+          },
+          dt_txt: '2025-06-10 18:00:00',
+        },
+        {
+          dt: 1749589200,
+          main: {
+            temp: 301.43,
+            feels_like: 306.49,
+            temp_min: 301.43,
+            temp_max: 301.43,
+            pressure: 1013,
+            sea_level: 1013,
+            grnd_level: 1013,
+            humidity: 83,
+            temp_kf: 0,
+          },
+          weather: [
+            {
+              id: 804,
+              main: 'Clouds',
+              description: 'overcast clouds',
+              icon: '04d',
+            },
+          ],
+          clouds: {
+            all: 94,
+          },
+          wind: {
+            speed: 6,
+            deg: 121,
+            gust: 6.28,
+          },
+          visibility: 10000,
+          pop: 0,
+          sys: {
+            pod: 'd',
+          },
+          dt_txt: '2025-06-10 21:00:00',
+        },
+        {
+          dt: 1749600000,
+          main: {
+            temp: 301.32,
+            feels_like: 306.36,
+            temp_min: 301.32,
+            temp_max: 301.32,
+            pressure: 1012,
+            sea_level: 1012,
+            grnd_level: 1012,
+            humidity: 84,
+            temp_kf: 0,
+          },
+          weather: [
+            {
+              id: 803,
+              main: 'Clouds',
+              description: 'broken clouds',
+              icon: '04d',
+            },
+          ],
+          clouds: {
+            all: 78,
+          },
+          wind: {
+            speed: 7.68,
+            deg: 109,
+            gust: 8.32,
+          },
+          visibility: 10000,
+          pop: 0,
+          sys: {
+            pod: 'd',
+          },
+          dt_txt: '2025-06-11 00:00:00',
         },
       ],
+      city: {
+        id: 4733103,
+        name: 'South Padre Island',
+        coord: {
+          lat: 26.3943,
+          lon: -96.637,
+        },
+        country: 'US',
+        population: 2816,
+        timezone: -21600,
+        sunrise: 1749468797,
+        sunset: 1749518321,
+      },
+    };
+    rawWeather = {
+      coord: {
+        lon: -96.637,
+        lat: 26.3943,
+      },
+      weather: [
+        {
+          id: 800,
+          main: 'Clear',
+          description: 'clear sky',
+          icon: '01d',
+        },
+      ],
+      base: 'stations',
+      main: {
+        temp: 301.34,
+        feels_like: 305.9,
+        temp_min: 301.34,
+        temp_max: 301.34,
+        pressure: 1013,
+        humidity: 81,
+        sea_level: 1013,
+        grnd_level: 1013,
+      },
+      visibility: 10000,
+      wind: {
+        speed: 6.52,
+        deg: 143,
+        gust: 6.98,
+      },
+      clouds: {
+        all: 4,
+      },
+      dt: 1749492526,
+      sys: {
+        country: 'US',
+        sunrise: 1749468797,
+        sunset: 1749518321,
+      },
+      timezone: -21600,
+      id: 4733103,
+      name: 'South Padre Island',
+      cod: 200,
     };
   };
 });

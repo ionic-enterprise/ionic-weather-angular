@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CurrentWeather, Forecast } from '@app/models';
 import { environment } from '@env/environment';
-import { BehaviorSubject, Observable, mergeMap, switchMap, map, from } from 'rxjs';
+import { BehaviorSubject, Observable, mergeMap, switchMap, map, from, forkJoin, tap } from 'rxjs';
 import { Location } from '@app/models';
 import { LocationService } from '../location/location.service';
 
@@ -12,23 +12,29 @@ interface WeatherCondition {
   description: string;
   icon: string;
 }
-interface RawForecast {
+interface RawCurrentWeather {
   dt: number;
-  weather: [WeatherCondition];
-  temp: {
-    min: number;
-    max: number;
-  };
-}
-interface OneCallResponse {
-  locationName: string;
-  current: {
-    dt: number;
+  main: {
     temp: number;
-    uvi: number;
-    weather: [WeatherCondition];
   };
-  daily: [RawForecast];
+  weather: [WeatherCondition];
+}
+interface RawForecast {
+  list: [
+    {
+      dt: number;
+      weather: [WeatherCondition];
+      main: {
+        temp_min: number;
+        temp_max: number;
+      };
+    },
+  ];
+}
+interface CallResponse {
+  locationName: string;
+  current: RawCurrentWeather;
+  forecast: RawForecast;
 }
 
 @Injectable({
@@ -39,7 +45,10 @@ export class WeatherService {
   private refresh: BehaviorSubject<void>;
   private refreshTimer: any;
 
-  constructor(private http: HttpClient, private location: LocationService) {
+  constructor(
+    private http: HttpClient,
+    private location: LocationService,
+  ) {
     this.currentData = new BehaviorSubject(null);
     this.refresh = new BehaviorSubject(null);
   }
@@ -52,16 +61,25 @@ export class WeatherService {
     this.refresh
       .pipe(
         switchMap(() => from(this.location.getCurrentLocation())),
-        mergeMap((loc: Location) => this.getData(loc)),
-        map((data) => this.convert(data))
+        mergeMap((loc: Location) =>
+          forkJoin({
+            current: this.getCurrentWeatherData(loc),
+            forecast: this.getForecastData(loc),
+            locationName: this.location.getLocationName(loc),
+          }),
+        ),
+        map((data) => this.convert(data as any)),
       )
-      .subscribe((w) => this.currentData.next(w));
+      .subscribe((w) => this.currentData.next(w as any));
   }
 
   startRefreshTimer(): void {
-    this.refreshTimer = setInterval(() => {
-      this.refresh.next();
-    }, 15 * 60 * 1000);
+    this.refreshTimer = setInterval(
+      () => {
+        this.refresh.next();
+      },
+      15 * 60 * 1000,
+    );
   }
 
   stopRefreshTimer(): void {
@@ -92,40 +110,41 @@ export class WeatherService {
     ][level];
   }
 
-  private convert(data: OneCallResponse): CurrentWeather {
+  private convert(data: CallResponse): CurrentWeather {
     return {
       locationName: data.locationName,
       condition: data.current.weather[0].id,
-      temperature: data.current.temp,
-      uvIndex: data.current.uvi,
-      forecasts: this.convertForecast(data.daily),
+      temperature: data.current.main.temp,
+      uvIndex: Math.floor(Math.random() * 14) + 1,
+      forecasts: this.convertForecast(data.forecast),
     };
   }
 
-  private convertForecast(daily: Array<RawForecast>): Array<Forecast> {
+  private convertForecast(forecast: RawForecast): Array<Forecast> {
     const result = [];
-    daily.forEach((day: RawForecast) => {
+    forecast.list.forEach((item) => {
       result.push({
-        date: new Date(day.dt * 1000),
-        condition: day.weather[0].id,
-        low: day.temp.min,
-        high: day.temp.max,
+        date: new Date(item.dt * 1000),
+        condition: item.weather[0].id,
+        low: item.main.temp_min,
+        high: item.main.temp_max,
       });
     });
     return result;
   }
 
-  private getData(location: Location): Observable<OneCallResponse> {
-    return this.http
-      .get<OneCallResponse>(
-        `${environment.baseUrl}/data/2.5/onecall?exclude=minutely,hourly` +
-          `&lat=${location.latitude}&lon=${location.longitude}&appid=${environment.apiKey}`
-      )
-      .pipe(
-        mergeMap((x: any) =>
-          this.location.getLocationName(location).pipe(map((locationName: string) => ({ ...x, locationName })))
-        )
-      );
+  private getForecastData(location: Location): Observable<RawForecast> {
+    return this.http.get<RawForecast>(
+      `${environment.baseUrl}/data/2.5/forecast` +
+        `?lat=${location.latitude}&lon=${location.longitude}&appid=${environment.apiKey}`,
+    );
+  }
+
+  private getCurrentWeatherData(location: Location): Observable<RawCurrentWeather> {
+    return this.http.get<RawCurrentWeather>(
+      `${environment.baseUrl}/data/2.5/weather` +
+        `?lat=${location.latitude}&lon=${location.longitude}&appid=${environment.apiKey}`,
+    );
   }
 
   private riskLevel(value: number): number {

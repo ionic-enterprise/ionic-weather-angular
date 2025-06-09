@@ -29,14 +29,14 @@ export class LocationService {
   getLocationName(location: Location): Observable<string> {
     return this.http
       .get(
-        `${environment.baseUrl}/geo/1.0/reverse?lat=${location.latitude}&lon=${location.longitude}&appid=${environment.apiKey}`
+        `${environment.baseUrl}/geo/1.0/reverse?lat=${location.latitude}&lon=${location.longitude}&appid=${environment.apiKey}`,
       )
       .pipe(
         map((data: Array<any>) =>
           data && data.length
             ? `${data[0].name}, ${data[0].state ? this.postalAbbreviation(data[0].state) : data[0].country}`
-            : 'Unknown'
-        )
+            : 'Unknown',
+        ),
       );
   }
 
