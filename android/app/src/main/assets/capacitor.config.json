@@ -1,5 +1,13 @@
 {
   "appId": "io.ionic.ionicweatherng",
   "appName": "ionic-weather-angular",
-  "webDir": "www"
+  "webDir": "www",
+  "android": {
+    "adjustMarginsForEdgeToEdge": "auto"
+  },
+  "plugins": {
+    "StatusBar": {
+      "overlaysWebView": false
+    }
+  }
 }

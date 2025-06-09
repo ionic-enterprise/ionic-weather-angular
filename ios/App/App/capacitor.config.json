@@ -2,5 +2,13 @@
   "appId": "io.ionic.ionicweatherng",
   "appName": "ionic-weather-angular",
   "webDir": "www",
+  "android": {
+    "adjustMarginsForEdgeToEdge": "auto"
+  },
+  "plugins": {
+    "StatusBar": {
+      "overlaysWebView": false
+    }
+  },
   "packageClassList": ["AppPlugin", "GeolocationPlugin", "HapticsPlugin", "KeyboardPlugin", "StatusBarPlugin"]
 }
