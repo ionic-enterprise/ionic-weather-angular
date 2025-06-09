@@ -45,8 +45,6 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Location is used to get the local weather based on your current location.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Location is used to get the local weather based on your current location.</string>
 </dict>
