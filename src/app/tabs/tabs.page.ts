@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import { calendar, cloud, sunny } from 'ionicons/icons';
 
 @Component({
   selector: 'app-tabs',
@@ -11,5 +13,11 @@ import { IonicModule } from '@ionic/angular';
   imports: [CommonModule, FormsModule, IonicModule],
 })
 export class TabsPage {
-  constructor() {}
+  constructor() {
+    addIcons({
+      calendar,
+      cloud,
+      sunny,
+    });
+  }
 }

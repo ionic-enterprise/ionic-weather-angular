@@ -5,7 +5,7 @@
 </ion-header>
 
 <ion-content class="main-content">
-  <ion-list *ngIf="data$ | async as data">
+  <ion-list class="transparent" *ngIf="data$ | async as data">
     <ion-item *ngFor="let f of data.forecasts" (click)="scale = scale === 'F' ? 'C' : 'F'">
       <ion-label>
         <csdemo-daily-forecast [scale]="scale" [forecast]="f"></csdemo-daily-forecast>
